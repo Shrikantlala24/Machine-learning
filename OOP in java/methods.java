@@ -5,7 +5,7 @@ public class methods {
         myCar.color = "Red";
         myCar.year = 2020;
 
-        myCar.honk();
+        car.honk();
 
     }
 }
