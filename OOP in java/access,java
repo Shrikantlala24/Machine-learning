@@ -1,0 +1,22 @@
+public class access {
+    public static void main(String args[]) {
+        UPI u1 = new UPI("user@bank", 1234);
+        System.out.println("UPI ID: " + u1.getUpiId());
+
+        
+    }
+}
+
+class UPI {
+    String upiId;
+    int password;
+
+    UPI(String id, int p) {
+        this.upiId = id;
+        this.password = p;
+    }
+
+    public String getUpiId() {
+        return upiId;
+    }
+}
