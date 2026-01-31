@@ -1,7 +1,7 @@
 class starter {
     public static void main(String args[]) {
         
-        int x = 10;
+        // int x = 10;
         Car C1 = new Car("Toyota", 2020);
         System.out.println(C1.name);
 
