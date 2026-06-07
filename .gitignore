@@ -1,0 +1,8 @@
+.agents
+.vscode
+/.vscode
+
+output
+# .gitignore
+
+skills-lock.json
