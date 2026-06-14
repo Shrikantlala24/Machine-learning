@@ -1,6 +1,8 @@
 .agents
 .vscode
 /.vscode
+venv
+# requirements.txt
 
 output
 # .gitignore
