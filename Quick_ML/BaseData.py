@@ -8,18 +8,62 @@
 #       - classes for different class of techniques, but creating them as static => 
 #       - 
 # 3. 
-# from pydantic import BaseModel
 
 
 from typing import List, Annotated, Literal, Tuple
+# from pydantic import BaseModel, Field
 import io
 import pandas as pd
 # from ydata_profiling import ProfileReport
 
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler
+from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, LabelEncoder
+from sklearn.impute import SimpleImputer, KNNImputer
 from sklearn.model_selection import train_test_split
 
 from pydantic import BaseModel, Field
+
+
+
+# first let's define the models for better feature orchestration
+
+class _ScalerConfig(BaseModel):
+    type : Literal['standard', 'minmax', 'robust']
+    # only for robust scaling, we'll consider IQR
+    iqr = tuple[float, float] = (0.25, 0.75)
+
+class _EncoderConfig(BaseModel):
+    type : Literal['onehot', 'ordinal', 'label']
+    # only for ordinal encoding, we'll consider the order of the categories
+    order : List[str] = Field(default_factory=list)
+    # for one hot encoding, we'll consider the drop parameter
+    drop : Literal['first', 'if_binary', None] = None
+    # for handling the unknown
+    handle : Literal['error', 'ignore'] = 'error'
+
+class _ImputerConfig(BaseModel):
+    type : Literal['mean', 'median', 'most_frequent', 'constant', 'knn', 'iterative']
+    # only for constant imputation, we'll consider the fill value
+    fill_value : float | str = 0.0
+    # only for knn imputation, we'll consider the number of neighbors
+    n_neighbors : int = 5
+    # only for iterative imputation, we'll consider the estimator
+    estimator : Literal['bayesian_ridge', 'decision_tree', 'extra_trees', 'knn', 'linear_regression', 'ridge', 'svr'] = 'bayesian_ridge'
+
+
+class _OutlierConfig(BaseModel):
+    type : Literal['iqr', 'zscore']
+    treatment : Literal['cap', 'remove', 'none'] = 'none'
+    # only for iqr, we'll consider the range
+    iqr_range : Tuple[float, float] = (0.25, 0.75)
+    # only for zscore, we'll consider the threshold
+    threshold : float = 3.0
+
+class _PipeConfig(BaseModel):
+    test_size : float = 0.2
+    random_state : int = 42
+    
+
 
 class data:
     def __init__(self,df : pd.DataFrame):
@@ -44,43 +88,4 @@ class data:
             self.df.describe()
         )
     
-    # def pandas_profile(self):
-    #     profile=  ProfileReport(self.df, title="your profile Report", explorative=True)
-    #     profile.to_file("profile.html")
-    #     return "the report has been saved to 'profile.html'"
 
-class pipe_config(BaseModel):
-    test_size: Annotated[float, Field(gt=0, lt=1)] = 0.2
-    random_state: int = 42
-
-class feature_engineering_config(BaseModel):
-    scaler: Literal['standard', 'minmax', 'robust'] = 'standard'
-    encoder: Literal['ordinal','onehot', 'label'] = 'ordinal'
-    missing_values_strategy: Literal['drop_column','drop_samples', 'mean', 'median', 'mode'] = 'mean'
-    outlier_detection_strategy: Literal['z_score', 'iqr', 'none'] = 'iqr'
-    outlier_handling_strategy: Literal['remove', 'cap', 'none'] = 'remove'
-
-class feature_engineering:
-    def __init__(self, feature : pd.Series):
-        self.feature = feature
-
-    # here we'll also get if the feature is numerical or categorical, and then based on that we'll apply the techniques
-
-    def Scaling(feature_engineering_config: feature_engineering_config):
-        if feature_engineering_config.scaler == 'standard':
-            return StandardScaler()
-        elif feature_engineering_config.scaler == 'minmax':
-            return MinMaxScaler()
-        elif feature_engineering_config.scaler == 'robust':
-            return RobustScaler()
-    
-    def Encoding():
-        pass
-    
-    def Missing_value():
-        pass
-    
-    def Outlier_handling():
-        pass
-
-class pipeline:
