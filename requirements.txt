@@ -5,3 +5,5 @@ streamlit
 matplotlib
 seaborn
 scipy
+# pydantic
+ydata_profiling
