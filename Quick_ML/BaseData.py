@@ -62,7 +62,25 @@ class _OutlierConfig(BaseModel):
 class _PipeConfig(BaseModel):
     test_size : float = 0.2
     random_state : int = 42
+
+
+# Now for parsing the input
+def _parse_scaling(args) -> _ScalerConfig:
+    if args is None:
+        return None
+    if isinstance(args,str):
+        args = (args,)
     
+    technique = args[0]
+    kwargs = args[1] if len(args) > 1 and isinstance(args[1], dict) else {}
+
+    valid = ('standard','minmax','robust')
+    if technique not in valid:
+        raise ValueError(f"scaling must be one of the {valid}, this {technique} is invalid")
+    
+    return _ScalerConfig(type=technique, **kwargs)
+
+
 
 
 class data:
